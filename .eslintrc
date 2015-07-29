@@ -1,0 +1,21 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "ecmaFeatures": {
+        "blockBindings": true,
+        "forOf": true,
+        "jsx": true,
+        "modules": true
+    },
+    "rules": {
+        "semi": 2,
+        "no-unused-vars": [1, { "vars": "local", "args": "after-used" }],
+        "quotes": [0, "single"],
+        "key-spacing": [0],
+        "no-underscore-dangle": [0],
+        "no-multi-spaces": [0]
+    }
+}

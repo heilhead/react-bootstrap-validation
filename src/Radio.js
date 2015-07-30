@@ -1,5 +1,5 @@
 import React from 'react';
-import ValidatedInput from './ValidatedInput.jsx';
+import ValidatedInput from './ValidatedInput';
 
 export default class Radio extends ValidatedInput {
     render() {

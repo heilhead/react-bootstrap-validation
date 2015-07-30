@@ -1,10 +1,10 @@
 import React from 'react';
-import InputContainer from './InputContainer.jsx';
-import ValidatedInput from './ValidatedInput.jsx';
-import RadioGroup from './RadioGroup.jsx';
+import InputContainer from './InputContainer';
+import ValidatedInput from './ValidatedInput';
+import RadioGroup from './RadioGroup';
 
-import Validator from './Validator.js';
-import FileValidator from './FileValidator.js';
+import Validator from './Validator';
+import FileValidator from './FileValidator';
 
 function getInputErrorMessage(input, ruleName) {
     let errorHelp = input.props.errorHelp;

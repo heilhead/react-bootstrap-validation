@@ -299,7 +299,7 @@ When validation error is triggered and there's no `errorHelp` property specified
 
 ### `ValidatedInput`
 
-An extension of react-bootstrap's `Input` component. Should be used instead of the original one for all the fields that need to be validate. All `ValidatedInput`s should have `name` property defined.
+An extension of react-bootstrap's `Input` component. Should be used instead of the original one for all the fields that need to be validated. All `ValidatedInput`s should have `name` property defined.
 
 **Properties**
 
@@ -327,7 +327,7 @@ Validation rule is a combination of validator.js method names separated with com
     validate='required,isEmail,isLength:5:60'
 />
 ```
-In the example above, input's value will be validated with three methods. `isLength` method also receives additional params. Inverse rules (like `!isNull`) are supported, but in `errorHelp` object they're looked up without the exclamation mark.
+In the example above, input's value will be validated with three methods. `isLength` method also receives additional params. Inverse rules (like `!isNull`) are supported, although in `errorHelp` object they're looked up without the exclamation mark.
 
 ##### `errorHelp: Object|String`
 Can be either a string with error text or an object with map `ruleName => errorText`.
@@ -456,7 +456,7 @@ Returns `true` if each file's mime type is in the `types` array.
 
 ## Tests
 
-Coming soon.
+Not yet implemented.
 
 ## License (MIT)
 

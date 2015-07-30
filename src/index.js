@@ -1,8 +1,8 @@
-import Form from './Form.jsx';
-import ValidatedInput from './ValidatedInput.jsx';
-import Radio from './Radio.jsx';
-import RadioGroup from './RadioGroup.jsx';
-import Validator from './Validator.js';
-import FileValidator from './FileValidator.js';
+import Form from './Form';
+import ValidatedInput from './ValidatedInput';
+import Radio from './Radio';
+import RadioGroup from './RadioGroup';
+import Validator from './Validator';
+import FileValidator from './FileValidator';
 
 export { Form, ValidatedInput, Radio, RadioGroup, Validator, FileValidator };

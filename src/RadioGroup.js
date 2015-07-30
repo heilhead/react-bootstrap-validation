@@ -1,6 +1,6 @@
 import React from 'react';
-import Radio from './Radio.jsx';
-import InputContainer from './InputContainer.jsx';
+import Radio from './Radio';
+import InputContainer from './InputContainer';
 import classNames from 'classnames';
 
 export default class RadioGroup extends InputContainer {

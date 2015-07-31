@@ -1,11 +1,15 @@
 {
   "name": "react-bootstrap-validation",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Form validation for react-bootstrap",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/heilhead/react-bootstrap-validation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heilhead/react-bootstrap-validation/issues",
+    "email": "keenn2007@gmail.com"
   },
   "directories": {
     "lib": "lib/"
@@ -16,8 +20,8 @@
   "files": [
     "LICENSE",
     "README.md",
-    "lib",
-    "dist"
+    "lib/",
+    "dist/"
   ],
   "keywords": [
     "react",
@@ -50,7 +54,7 @@
   },
   "dependencies": {
     "classnames": "^2.0.0",
-    "react-bootstrap": "^0.24.2",
+    "react-bootstrap": ">=0.23.0",
     "validator": "^3.41.3"
   }
 }

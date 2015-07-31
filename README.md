@@ -1,5 +1,7 @@
 # Form validation for [react-bootstrap](http://react-bootstrap.github.io/).
 
+Feedback, suggestions and pull-requests are welcome!
+
 ## Example 1: Simple Registration Form
 
 ```js

@@ -1,5 +1,6 @@
 var gulp        = require('gulp');
-var browserify  = require('browserify');
+var gutil       = require('gulp-util');
+var webpack     = require('webpack');
 var babel       = require('gulp-babel');
 var uglify      = require('gulp-uglify');
 var source      = require('vinyl-source-stream');
@@ -13,48 +14,68 @@ var src    = './src';
 var entry  = src + '/index.js';
 
 var config = {
-    browserify: {
-        libBundleConfig: {
-            detectGlobals: false,
-            entries: [ lib + '/index.js' ],
-            debug: true
+    webpack: {
+        entry: {
+            'react-bootstrap': './lib/index.js'
         },
-        libOutputName: 'bundle.js',
-        dest: dest
+        output: {
+            path: './dist',
+            filename: 'bundle.js',
+            library: 'ReactBootstrapValidation',
+            libraryTarget: 'umd'
+        },
+        externals: [
+            {
+                'react': {
+                    root: 'React',
+                    commonjs2: 'react',
+                    commonjs: 'react',
+                    amd: 'react'
+                }
+            },
+            {
+                'react-bootstrap': {
+                    root: 'ReactBootstrap',
+                    commonjs2: 'react-bootstrap',
+                    commonjs: 'react-bootstrap',
+                    amd: 'react-bootstrap'
+                }
+            }
+        ],
+        devtool: 'source-map'
     },
     babel: {
         optional: ['runtime']
-    },
-    uglify: {
-        src : dest + '/bundle.js',
-        dest: dest
     }
 };
 
-gulp.task('build-lib', function () {
+gulp.task('lib', function () {
     return gulp.src(['src/**/*.js'])
         .pipe(babel(config.babel))
         .pipe(gulp.dest(lib));
 });
 
-gulp.task('build-dist', ['build-lib'], function () {
-    var b = browserify(config.browserify.libBundleConfig);
+gulp.task('pack', ['lib'], function(callback) {
+    webpack(config.webpack, function(err, stats) {
+        if (err) {
+            throw new gutil.PluginError('webpack', err);
+        }
 
-    b.external('react');
-    b.external('react-bootstrap');
+        gutil.log('[webpack]', stats.toString());
 
-    var stream = b.bundle()
-        .pipe(source(config.browserify.libOutputName))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(gulp.dest(config.browserify.dest))
-        .pipe(uglify())
-        .pipe(rename({ suffix: '.min' }))
-        .pipe(sourcemaps.write('./'));
-
-    stream.pipe(gulp.dest(config.browserify.dest));
-
-    return stream;
+        callback();
+    });
 });
 
-gulp.task('build', ['build-dist']);
+gulp.task('minimize', ['pack'], function () {
+    return gulp.src('dist/bundle.js')
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(gulp.dest(dest))
+        .pipe(uglify())
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(dest));
+});
+
+gulp.task('build', ['minimize']);
+gulp.task('default', ['build']);

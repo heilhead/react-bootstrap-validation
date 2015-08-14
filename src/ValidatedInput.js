@@ -28,13 +28,20 @@ export default class ValidatedInput extends Input {
 }
 
 ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
-    name: React.PropTypes.string.isRequired,
-    validate : React.PropTypes.oneOfType([
+    name           : React.PropTypes.string.isRequired,
+    validationEvent: React.PropTypes.oneOf([
+        '', 'onChange', 'onBlur', 'onFocus'
+    ]),
+    validate       : React.PropTypes.oneOfType([
         React.PropTypes.func,
         React.PropTypes.string
     ]),
-    errorHelp: React.PropTypes.oneOfType([
+    errorHelp      : React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.object
     ])
+});
+
+ValidatedInput.defaultProps = Object.assign({}, Input.defaultProps, {
+    validationEvent: ''
 });

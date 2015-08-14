@@ -299,6 +299,9 @@ If present, this callback is called instead of field by field validation. Receiv
 ##### `errorHelp: String|Object`
 When validation error is triggered and there's no `errorHelp` property specified for the validated input, the error text is looked up in form's `errorHelp` property.
 
+##### `validationEvent: String`
+Input event that triggers field validation. Can be one of `onChange`, `onBlur` or `onFocus`. Default value is `onChange`.
+
 ### `ValidatedInput`
 
 An extension of react-bootstrap's `Input` component. Should be used instead of the original one for all the fields that need to be validated. All `ValidatedInput`s should have `name` property defined.
@@ -308,13 +311,24 @@ An extension of react-bootstrap's `Input` component. Should be used instead of t
 ##### `name: String` **required**
 This property is inherited from `Input` with only difference that it is required for `ValidatedInput`.
 
+##### `validationEvent: String`
+Event that triggers validation. Can be one of `onChange`, `onBlur` or `onFocus`. Default value is `onChange`. Overrides Form's `validationEvent` property.
+
+```js
+<ValidatedInput
+    name='email'
+    validationEvent='onBlur'
+    validate='required,isEmail'
+/>
+```
+
 ##### `validate: Function|String`
 Either a validation function or a string validation rule.
 
 Validation function receives two arguments, `val` and `context`. First one is the value of the input, second one is an object, containing values of all form fields. Having context is useful if you have a field, whose validation depends on other values of the form.
 ```js
 <ValidatedInput
-    name="passwordConfirm"
+    name='passwordConfirm'
     validate={(val, context) => {
         return val === context.password;
     }}
@@ -325,7 +339,7 @@ The result of the function should be either a boolean or a string. Any value ret
 Validation rule is a combination of validator.js method names separated with comma.
 ```js
 <ValidatedInput
-    name="email"
+    name='email'
     validate='required,isEmail,isLength:5:60'
 />
 ```
@@ -373,6 +387,9 @@ And the next ones are from `ValidatedInput`:
     <Radio value='3' label='Option 3' />
 </RadioGroup>
 ```
+
+##### `validationEvent: String`
+This property is a slightly different from `ValidatedInput`s one - it only accepts `onChange` (which is also it's default value) and should not be used.
 
 ## Validators
 

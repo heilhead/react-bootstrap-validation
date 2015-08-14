@@ -87,14 +87,15 @@ export default class Form extends InputContainer {
                     _unregisterInput: this.unregisterInput.bind(this)
                 };
 
-                let fireEvent = (!child.props.validateOnEvent) ? this.props.validateOnEvent : child.props.validateOnEvent;
+                let evtName = child.props.validationEvent ?
+                        child.props.validationEvent : this.props.validationEvent;
 
-                let origOnChange = child.props[fireEvent]
+                let origCallback = child.props[evtName]
 
-                newProps[fireEvent] = e => {
-                    this._onInputChange(name, e);
+                newProps[evtName] = e => {
+                    this._validateInput(name);
 
-                    return origOnChange && origOnChange(e);
+                    return origCallback && origCallback(e);
                 };
 
                 let defaultValue = this.props.model && this.props.model[name];
@@ -124,7 +125,7 @@ export default class Form extends InputContainer {
         });
     }
 
-    _onInputChange(name) {
+    _validateInput(name) {
         this._validateOne(name, this.getValues());
     }
 
@@ -304,7 +305,9 @@ Form.propTypes = {
     onInvalidSubmit: React.PropTypes.func,
     validateOne    : React.PropTypes.func,
     validateAll    : React.PropTypes.func,
-    validateOnEvent: React.PropTypes.string,
+    validationEvent: React.PropTypes.oneOf([
+        'onChange', 'onBlur', 'onFocus'
+    ]),
     errorHelp      : React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.object
@@ -314,6 +317,6 @@ Form.propTypes = {
 Form.defaultProps = {
     model          : {},
     className      : 'form-horizontal',
-    validateOnEvent: 'onChange',
+    validationEvent: 'onChange',
     onInvalidSubmit: () => {}
 };

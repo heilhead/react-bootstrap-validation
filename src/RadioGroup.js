@@ -109,11 +109,6 @@ export default class RadioGroup extends InputContainer {
     }
 }
 
-RadioGroup.defaultProps = {
-    standalone: false,
-    onChange  : () => {}
-};
-
 RadioGroup.propTypes = {
     standalone      : React.PropTypes.bool,
     hasFeedback     : React.PropTypes.bool,
@@ -129,6 +124,9 @@ RadioGroup.propTypes = {
     groupClassName  : React.PropTypes.string,
     wrapperClassName: React.PropTypes.string,
     labelClassName  : React.PropTypes.string,
+    validationEvent : React.PropTypes.oneOf([
+        'onChange'
+    ]),
     validate        : React.PropTypes.oneOfType([
         React.PropTypes.func,
         React.PropTypes.string
@@ -137,4 +135,10 @@ RadioGroup.propTypes = {
         React.PropTypes.string,
         React.PropTypes.object
     ])
+};
+
+RadioGroup.defaultProps = {
+    standalone     : false,
+    validationEvent: 'onChange',
+    onChange       : () => {}
 };

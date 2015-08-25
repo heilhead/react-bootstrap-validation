@@ -48,10 +48,9 @@ export default class Form extends InputContainer {
 
     render() {
         return (
-            <form ref="form"
-                  onSubmit={this._handleSubmit.bind(this)}
-                  action="#"
-                  className={this.props.className}>
+            <form {...this.props}
+                  ref="form"
+                  onSubmit={this._handleSubmit.bind(this)}>
                 {this._renderChildren(this.props.children)}
             </form>
         );

@@ -315,7 +315,6 @@ Form.propTypes = {
 
 Form.defaultProps = {
     model          : {},
-    className      : 'form-horizontal',
     validationEvent: 'onChange',
     onInvalidSubmit: () => {}
 };

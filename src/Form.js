@@ -75,7 +75,10 @@ export default class Form extends InputContainer {
                 return child;
             }
 
-            if (child.type === ValidatedInput || child.type === RadioGroup) {
+            if (child.type === ValidatedInput ||
+                child.type.prototype instanceof ValidatedInput ||
+                child.type === RadioGroup ||
+                child.type.prototype instanceof RadioGroup) {
                 let name = child.props && child.props.name;
 
                 if (!name) {

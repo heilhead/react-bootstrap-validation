@@ -1,7 +1,7 @@
 {
-  "name": "react-bootstrap-validation",
+  "name": "react-bootstrap-validation-loicuv",
   "version": "0.1.7",
-  "description": "Form validation for react-bootstrap",
+  "description": "Form validation for react-bootstrap without default className on form element",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   ],
   "author": "Ivan Reshetnikov <keenn2007@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/loicuv/react-bootstrap-validation",
+  "homepage": "https://github.com/heilhead/react-bootstrap-validation",
   "peerDependencies": {
     "react": ">=0.13"
   },

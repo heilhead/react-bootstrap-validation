@@ -1,14 +1,14 @@
 {
-  "name": "react-bootstrap-validation",
+  "name": "react-bootstrap-validation-loicuv",
   "version": "0.1.7",
-  "description": "Form validation for react-bootstrap",
+  "description": "Form validation for react-bootstrap without default className on form element",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heilhead/react-bootstrap-validation.git"
+    "url": "https://github.com/loicuv/react-bootstrap-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/heilhead/react-bootstrap-validation/issues"
+    "url": "https://github.com/loicuv/react-bootstrap-validation/issues"
   },
   "directories": {
     "lib": "lib/"

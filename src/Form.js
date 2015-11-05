@@ -72,7 +72,7 @@ export default class Form extends InputContainer {
 
         let model = this.props.model || {};
 
-        return React.Children.map(children, child => {
+        let processChild = child => {
             if (typeof child !== 'object' || child === null) {
                 return child;
             }
@@ -127,7 +127,15 @@ export default class Form extends InputContainer {
             } else {
                 return React.cloneElement(child, {}, this._renderChildren(child.props && child.props.children));
             }
-        });
+        };
+
+        let childrenCount = React.Children.count(children);
+
+        if (childrenCount === 1) {
+            return processChild(children);
+        } else if (childrenCount > 1) {
+            return React.Children.map(children, processChild);
+        }
     }
 
     _validateInput(name) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input } from 'react-bootstrap';
+import Input from 'react-bootstrap/lib/Input';
 
 export default class ValidatedInput extends Input {
     constructor(props) {

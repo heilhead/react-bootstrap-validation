@@ -70,6 +70,8 @@ export default class Form extends InputContainer {
             return children;
         }
 
+        let model = this.props.model || {};
+
         return React.Children.map(children, child => {
             if (typeof child !== 'object' || child === null) {
                 return child;
@@ -101,12 +103,12 @@ export default class Form extends InputContainer {
                     return origCallback && origCallback(e);
                 };
 
-                let defaultValue = this.props.model && this.props.model[name];
-
-                if (child.props.type === 'checkbox') {
-                    newProps.defaultChecked = defaultValue;
-                } else {
-                    newProps.defaultValue = defaultValue;
+                if (name in model) {
+                    if (child.props.type === 'checkbox') {
+                        newProps.defaultChecked = model[name];
+                    } else {
+                        newProps.defaultValue = model[name];
+                    }
                 }
 
                 let error = this._hasError(name);
@@ -319,7 +321,6 @@ Form.propTypes = {
 
 Form.defaultProps = {
     model          : {},
-    className      : 'form-horizontal',
     validationEvent: 'onChange',
     onInvalidSubmit: () => {}
 };

@@ -65,6 +65,10 @@ export default class Form extends InputContainer {
         }, {});
     }
 
+    submit() {
+        this._handleSubmit();
+    }
+
     _renderChildren(children) {
         if (typeof children !== 'object' || children === null) {
             return children;
@@ -297,7 +301,9 @@ export default class Form extends InputContainer {
     }
 
     _handleSubmit(e) {
-        e.preventDefault();
+        if (e) {
+            e.preventDefault();
+        }
 
         let values = this.getValues();
 

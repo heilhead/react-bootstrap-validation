@@ -11,17 +11,19 @@ export default class ValidatedInput extends Input {
     }
 
     componentWillMount() {
-        if (super.componentWillMount) {
+        // @todo disabled to fix https://github.com/heilhead/react-bootstrap-validation/issues/11
+        // needs proper solution
+        /*if (super.componentWillMount) {
             super.componentWillMount();
-        }
+        }*/
 
         this.props._registerInput(this);
     }
 
     componentWillUnmount() {
-        if (super.componentWillUnmount) {
+        /*if (super.componentWillUnmount) {
             super.componentWillUnmount();
-        }
+        }*/
 
         this.props._unregisterInput(this);
     }

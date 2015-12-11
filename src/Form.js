@@ -140,10 +140,8 @@ export default class Form extends InputContainer {
 
         let childrenCount = React.Children.count(children);
 
-        if (childrenCount === 1) {
-            return processChild(children);
-        } else if (childrenCount > 1) {
-            return React.Children.map(children, processChild);
+        if (childrenCount > 0) {
+            return ( Array.isArray(children) ? React.Children.map(children, processChild) : processChild(children) );
         }
     }
 

@@ -12,7 +12,7 @@ function getTotalFileSize(files) {
 
 function getFileExtension(filename) {
     return filename
-        .substr((~-filename.lastIndexOf(".") >>> 0) + 2)
+        .substr((~-filename.lastIndexOf('.') >>> 0) + 2)
         .toLowerCase();
 }
 

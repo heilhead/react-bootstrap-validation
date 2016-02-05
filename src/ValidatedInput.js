@@ -21,7 +21,7 @@ export default class ValidatedInput extends React.Component {
         }
 
         let name = props.name,
-            error = Validator.hasError(name)
+            error = Validator.hasError(name),
             origCallback = props[evtName];
 
         props[evtName] = (e) => {

@@ -26,6 +26,19 @@ export default class Form extends InputContainer {
         };
     }
 
+    getChildContext() {
+        return {
+            Validator: {
+                hasError: this._hasError.bind(this),
+                model: this.props.model,
+                registerInput: this.registerInput.bind(this),
+                validateInput: this._validateInput.bind(this),
+                validationEvent: this.props.validationEvent,
+                unregisterInput: this.unregisterInput.bind(this)
+            }
+        };
+    }
+
     componentWillMount() {
         super.componentWillMount();
 
@@ -52,7 +65,7 @@ export default class Form extends InputContainer {
                   onSubmit={this._handleSubmit.bind(this)}
                   action="#"
                   className={this.props.className}>
-                {this._renderChildren(this.props.children)}
+                {this.props.children}
             </form>
         );
     }
@@ -67,84 +80,6 @@ export default class Form extends InputContainer {
 
     submit() {
         this._handleSubmit();
-    }
-
-    _renderChildren(children) {
-        if (typeof children !== 'object' || children === null) {
-            return children;
-        }
-
-        let childrenCount = React.Children.count(children);
-
-        if (childrenCount > 1) {
-            return React.Children.map(children, child => this._renderChild(child));
-        } else if (childrenCount === 1) {
-            return this._renderChild(Array.isArray(children) ? children[0] : children);
-        }
-    }
-
-    _renderChild(child) {
-        if (typeof child !== 'object' || child === null) {
-            return child;
-        }
-
-        let model = this.props.model || {};
-
-        if (child.type === ValidatedInput ||
-            child.type === RadioGroup || (
-                child.type &&
-                child.type.prototype !== null && (
-                    child.type.prototype instanceof ValidatedInput ||
-                    child.type.prototype instanceof RadioGroup
-                )
-            )
-        ) {
-            let name = child.props && child.props.name;
-
-            if (!name) {
-                throw new Error('Can not add input without "name" attribute');
-            }
-
-            let newProps = {
-                _registerInput  : this.registerInput.bind(this),
-                _unregisterInput: this.unregisterInput.bind(this)
-            };
-
-            let evtName = child.props.validationEvent ?
-                    child.props.validationEvent : this.props.validationEvent;
-
-            let origCallback = child.props[evtName];
-
-            newProps[evtName] = e => {
-                this._validateInput(name);
-
-                return origCallback && origCallback(e);
-            };
-
-            if (name in model) {
-                if (child.props.type === 'checkbox') {
-                    newProps.defaultChecked = model[name];
-                } else {
-                    newProps.defaultValue = model[name];
-                }
-            }
-
-            let error = this._hasError(name);
-
-            if (error) {
-                newProps.bsStyle = 'error';
-
-                if (typeof error === 'string') {
-                    newProps.help = error;
-                } else if (child.props.errorHelp) {
-                    newProps.help = child.props.errorHelp;
-                }
-            }
-
-            return React.cloneElement(child, newProps);
-        } else {
-            return React.cloneElement(child, {}, this._renderChildren(child.props && child.props.children));
-        }
     }
 
     _validateInput(name) {
@@ -284,7 +219,7 @@ export default class Form extends InputContainer {
     }
 
     _getValue(iptName) {
-        let input = this._inputs[iptName];
+        let input = this._inputs[iptName].props.children;
 
         if (Array.isArray(input)) {
             console.warn('Multiple inputs use the same name "' + iptName + '"');
@@ -343,3 +278,8 @@ Form.defaultProps = {
     validationEvent: 'onChange',
     onInvalidSubmit: () => {}
 };
+
+Form.childContextTypes = {
+    Validator: React.PropTypes.object.isRequired
+};
+

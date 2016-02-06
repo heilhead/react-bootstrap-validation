@@ -26,35 +26,25 @@ export default class Form extends InputContainer {
         };
     }
 
+    getChildContext() {
+        return {
+            Validator: {
+                getValue: this._getValue.bind(this),
+                hasError: this._hasError.bind(this),
+                registerInput: this.registerInput.bind(this),
+                unregisterInput: this.unregisterInput.bind(this),
+                updateInput: this._updateInput.bind(this),
+                validateInput: this._validateInput.bind(this),
+                validationEvent: this.props.validationEvent
+            }
+        };
+    }
+
     componentWillMount() {
         super.componentWillMount();
 
         this._validators = {};
-    }
-
-    registerInput(input) {
-        super.registerInput(input);
-
-        if (typeof input.props.validate === 'string') {
-            this._validators[input.props.name] = this._compileValidationRules(input, input.props.validate);
-        }
-    }
-
-    unregisterInput(input) {
-        super.unregisterInput(input);
-
-        delete this._validators[input.props.name];
-    }
-
-    render() {
-        return (
-            <form ref="form"
-                  onSubmit={this._handleSubmit.bind(this)}
-                  action="#"
-                  className={this.props.className}>
-                {this._renderChildren(this.props.children)}
-            </form>
-        );
+        this._values = {};
     }
 
     getValues() {
@@ -65,183 +55,33 @@ export default class Form extends InputContainer {
         }, {});
     }
 
+    registerInput(input) {
+        super.registerInput(input);
+
+        if (typeof input.props.validate === 'string') {
+            this._validators[input.props.name] = this._compileValidationRules(input, input.props.validate);
+            this._values[input.props.name] = this._getValue(input.props.name);
+        }
+    }
+
     submit() {
         this._handleSubmit();
     }
 
-    _renderChildren(children) {
-        if (typeof children !== 'object' || children === null) {
-            return children;
-        }
+    unregisterInput(input) {
+        super.unregisterInput(input);
 
-        let childrenCount = React.Children.count(children);
-
-        if (childrenCount > 1) {
-            return React.Children.map(children, child => this._renderChild(child));
-        } else if (childrenCount === 1) {
-            return this._renderChild(Array.isArray(children) ? children[0] : children);
-        }
+        delete this._validators[input.props.name];
     }
 
-    _renderChild(child) {
-        if (typeof child !== 'object' || child === null) {
-            return child;
-        }
-
-        let model = this.props.model || {};
-
-        if (child.type === ValidatedInput ||
-            child.type === RadioGroup || (
-                child.type &&
-                child.type.prototype !== null && (
-                    child.type.prototype instanceof ValidatedInput ||
-                    child.type.prototype instanceof RadioGroup
-                )
-            )
-        ) {
-            let name = child.props && child.props.name;
-
-            if (!name) {
-                throw new Error('Can not add input without "name" attribute');
-            }
-
-            let newProps = {
-                _registerInput  : this.registerInput.bind(this),
-                _unregisterInput: this.unregisterInput.bind(this)
-            };
-
-            let evtName = child.props.validationEvent ?
-                    child.props.validationEvent : this.props.validationEvent;
-
-            let origCallback = child.props[evtName];
-
-            newProps[evtName] = e => {
-                this._validateInput(name);
-
-                return origCallback && origCallback(e);
-            };
-
-            if (name in model) {
-                if (child.props.type === 'checkbox') {
-                    newProps.defaultChecked = model[name];
-                } else {
-                    newProps.defaultValue = model[name];
-                }
-            }
-
-            let error = this._hasError(name);
-
-            if (error) {
-                newProps.bsStyle = 'error';
-
-                if (typeof error === 'string') {
-                    newProps.help = error;
-                } else if (child.props.errorHelp) {
-                    newProps.help = child.props.errorHelp;
-                }
-            }
-
-            return React.cloneElement(child, newProps);
-        } else {
-            return React.cloneElement(child, {}, this._renderChildren(child.props && child.props.children));
-        }
-    }
-
-    _validateInput(name) {
-        this._validateOne(name, this.getValues());
-    }
-
-    _hasError(iptName) {
-        return this.state.invalidInputs[iptName];
-    }
-
-    _setError(iptName, isError, errText) {
-        if (isError && errText &&
-            typeof errText !== 'string' &&
-            typeof errText !== 'boolean')
-        {
-            errText = errText + '';
-        }
-
-        // set value to either bool or error description string
-        this.setState({
-            invalidInputs: Object.assign(
-                this.state.invalidInputs,
-                {
-                    [iptName]: isError ? errText || true : false
-                }
-            )
-        });
-    }
-
-    _validateOne(iptName, context) {
-        let input = this._inputs[iptName];
-
-        if (Array.isArray(input)) {
-            console.warn('Multiple inputs use the same name "' + iptName + '"');
-
-            return false;
-        }
-
-        let value = context[iptName];
-        let isValid = true;
-        let validate = input.props.validate;
-        let result, error;
-
-        if (typeof this.props.validateOne === 'function') {
-            result = this.props.validateOne(iptName, value, context);
-        } else if (typeof validate === 'function') {
-            result = validate(value, context);
-        } else if (typeof validate === 'string') {
-            result = this._validators[iptName](value);
-        } else {
-            result = true;
-        }
-
-        // if result is !== true, it is considered an error
-        // it can be either bool or string error
-        if (result !== true) {
-            isValid = false;
-
-            if (typeof result === 'string') {
-                error = result;
-            }
-        }
-
-        this._setError(iptName, !isValid, error);
-
-        return isValid;
-    }
-
-    _validateAll(context) {
-        let isValid = true;
-        let errors = [];
-
-        if (typeof this.props.validateAll === 'function') {
-            let result = this.props.validateAll(context);
-
-            if (result !== true) {
-                isValid = false;
-
-                Object.keys(result).forEach(iptName => {
-                    errors.push(iptName);
-
-                    this._setError(iptName, true, result[iptName]);
-                });
-            }
-        } else {
-            Object.keys(this._inputs).forEach(iptName => {
-                if (!this._validateOne(iptName, context)) {
-                    isValid = false;
-                    errors.push(iptName);
-                }
-            });
-        }
-
-        return {
-            isValid: isValid,
-            errors: errors
-        };
+    render() {
+        return (
+            <form action="#"
+                  className={this.props.className}
+                  onSubmit={this._handleSubmit.bind(this)}>
+                {this.props.children}
+            </form>
+        );
     }
 
     _compileValidationRules(input, ruleProp) {
@@ -284,22 +124,21 @@ export default class Form extends InputContainer {
     }
 
     _getValue(iptName) {
-        let input = this._inputs[iptName];
+        let input = this._inputs[iptName],
+            value;
 
         if (Array.isArray(input)) {
             console.warn('Multiple inputs use the same name "' + iptName + '"');
 
-            return false;
+            return null;
         }
 
-        let value;
+        if (iptName in this.props.model) {
+            value = this.props.model[iptName];
+        }
 
-        if (input.props.type === 'checkbox') {
-            value = input.getChecked();
-        } else if (input.props.type === 'file') {
-            value = input.getInputDOMNode().files;
-        } else {
-            value = input.getValue();
+        if (this._values[iptName]) {
+            value = this._values[iptName];
         }
 
         return value;
@@ -310,15 +149,114 @@ export default class Form extends InputContainer {
             e.preventDefault();
         }
 
-        let values = this.getValues();
-
-        let { isValid, errors } = this._validateAll(values);
+        let { isValid, errors } = this._validateAll(this._values);
 
         if (isValid) {
-            this.props.onValidSubmit(values);
+            this.props.onValidSubmit(this._values);
         } else {
-            this.props.onInvalidSubmit(errors, values);
+            this.props.onInvalidSubmit(errors, this._values);
         }
+    }
+
+    _hasError(iptName) {
+        return this.state.invalidInputs[iptName];
+    }
+
+    _setError(iptName, isError, errText) {
+        if (isError && errText &&
+            typeof errText !== 'string' &&
+            typeof errText !== 'boolean')
+        {
+            errText = errText + '';
+        }
+
+        // set value to either bool or error description string
+        this.setState({
+            invalidInputs: Object.assign(
+                this.state.invalidInputs,
+                {
+                    [iptName]: isError ? errText || true : false
+                }
+            )
+        });
+    }
+
+    _updateInput(name, value) {
+        this._values[name] = value;
+    }
+
+    _validateAll(context) {
+        let isValid = true;
+        let errors = [];
+
+        if (typeof this.props.validateAll === 'function') {
+            let result = this.props.validateAll(context);
+
+            if (result !== true) {
+                isValid = false;
+
+                Object.keys(result).forEach(iptName => {
+                    errors.push(iptName);
+
+                    this._setError(iptName, true, result[iptName]);
+                });
+            }
+        } else {
+            Object.keys(this._inputs).forEach(iptName => {
+                if (!this._validateOne(iptName, context)) {
+                    isValid = false;
+                    errors.push(iptName);
+                }
+            });
+        }
+
+        return {
+            isValid: isValid,
+            errors: errors
+        };
+    }
+
+    _validateInput(name) {
+        this._validateOne(name, this._values);
+    }
+
+    _validateOne(iptName, context) {
+        let input = this._inputs[iptName];
+
+        if (Array.isArray(input)) {
+            console.warn('Multiple inputs use the same name "' + iptName + '"');
+
+            return false;
+        }
+
+        let value = context[iptName];
+        let isValid = true;
+        let validate = input.props.validate;
+        let result, error;
+
+        if (typeof this.props.validateOne === 'function') {
+            result = this.props.validateOne(iptName, value, context);
+        } else if (typeof validate === 'function') {
+            result = validate(value, context);
+        } else if (typeof validate === 'string') {
+            result = this._validators[iptName](value);
+        } else {
+            result = true;
+        }
+
+        // if result is !== true, it is considered an error
+        // it can be either bool or string error
+        if (result !== true) {
+            isValid = false;
+
+            if (typeof result === 'string') {
+                error = result;
+            }
+        }
+
+        this._setError(iptName, !isValid, error);
+
+        return isValid;
     }
 }
 
@@ -343,3 +281,8 @@ Form.defaultProps = {
     validationEvent: 'onChange',
     onInvalidSubmit: () => {}
 };
+
+Form.childContextTypes = {
+    Validator: React.PropTypes.object.isRequired
+};
+

@@ -1,34 +1,103 @@
 import React from 'react';
 import { Input } from 'react-bootstrap';
 
-export default class ValidatedInput extends Input {
-    constructor(props) {
-        super(props);
-
-        if (!props._registerInput || !props._unregisterInput) {
-            throw new Error('Input must be placed inside the Form component');
-        }
-    }
-
+export default class ValidatedInput extends React.Component {
     componentWillMount() {
-        if (Input.prototype.componentWillMount) {
-            super.componentWillMount();
-        }
-
-        this.props._registerInput(this);
+        this.context.Validator.registerInput(this);
     }
 
     componentWillUnmount() {
-        if (Input.prototype.componentWillUnmount) {
-            super.componentWillUnmount();
+        this.context.Validator.unregisterInput(this);
+    }
+
+    getValue() {
+        let value;
+
+        if (this.props.type === 'checkbox') {
+        value = this.refs.input.getChecked();
+        } else if (this.props.type === 'file') {
+            value = this.refs.input.getInputDOMNode().files;
+        } else {
+            value = this.refs.input.getValue();
         }
 
-        this.props._unregisterInput(this);
+        return value;
+    }
+
+    render() {
+        let {validate, errorHelp, validationEvent, ...props} = this.props;
+
+        return (
+            <Input {...props}
+                   {...this._getValidatorProps()}
+                   ref="input">
+                {this.props.children}
+            </Input>
+        )
+    }
+
+    _getDefaultValue() {
+        let key = 'defaultValue',
+            value = this.context.Validator.getValue(this.props.name);
+
+        if (this.props.type === 'checkbox') {
+            key = 'defaultChecked';
+        }
+
+        return {key, value};
+    }
+
+    _getValidation() {
+        let error = this.context.Validator.hasError(this.props.name),
+            bsStyle = false,
+            help = false;
+
+        if (error) {
+            bsStyle = 'error';
+
+            if (typeof error === 'string') {
+                help = error;
+            } else if (this.props.errorHelp) {
+                help = this.props.errorHelp;
+            }
+        }
+
+        return {bsStyle, help};
+    }
+
+    _getValidatorProps() {
+        let eventName = (this.props.validationEvent) ? this.props.validationEvent : this.context.Validator.validationEvent,
+            {key, value} = this._getDefaultValue(),
+            {bsStyle, help} = this._getValidation(),
+            callback = (event) => {
+                this.context.Validator.updateInput(this.props.name, this.getValue());
+                this.context.Validator.validateInput(this.props.name);
+
+                return this.props[eventName] && this.props[eventName](event);
+            },
+            newProps = {
+                validationEvent: eventName,
+            };
+
+        newProps[eventName] = callback;
+
+        if (value) {
+            newProps[key] = value;
+        }
+
+        if (bsStyle) {
+            newProps.bsStyle = bsStyle;
+        }
+
+        if (help) {
+            newProps.help = help;
+        }
+
+        return newProps;
     }
 }
 
 ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
-    name           : React.PropTypes.string.isRequired,
     validationEvent: React.PropTypes.oneOf([
         '', 'onChange', 'onBlur', 'onFocus'
     ]),
@@ -42,6 +111,8 @@ ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
     ])
 });
 
-ValidatedInput.defaultProps = Object.assign({}, Input.defaultProps, {
-    validationEvent: ''
-});
+ValidatedInput.contextTypes = {
+    Validator: React.PropTypes.object.isRequired
+};
+
+ValidatedInput.defaultProps = Input.defaultProps;

@@ -29,56 +29,16 @@ export default class ValidatedInput extends React.Component {
 
         return (
             <Input {...props}
-                {...this._generateValidatorProps()}
-                ref='input'>
+                   {...this._getValidatorProps()}
+                   ref="input">
                 {this.props.children}
             </Input>
         )
     }
 
-    _generateValidatorProps() {
-        let eventName = this._getValidationEvent(),
-            {key, value} = this._getDefaultValue(),
-            {bsStyle, help} = this._getValidation(),
-            callback = this._getValidationCallback(eventName),
-            newProps = {
-                validationEvent: eventName,
-            };
-
-        newProps[eventName] = callback;
-
-        if (value) {
-            newProps[key] = value;
-        }
-
-        if (bsStyle) {
-            newProps.bsStyle = bsStyle;
-        }
-
-        if (help) {
-            newProps.help = help;
-        }
-
-        return newProps;
-    }
-
-    _getValidationEvent() {
-        return (this.props.validationEvent) ? this.props.validationEvent : this.context.Validator.validationEvent;
-    }
-
-    _getValidationCallback(eventName) {
-        let origCallback = this.props[eventName];
-
-        return (event) => {
-            this.context.Validator.validateInput(this.props.name, this.getValue());
-
-            return origCallback && origCallback(event);
-        };
-    }
-
     _getDefaultValue() {
         let key = 'defaultValue',
-            value = this.context.Validator.getDefaultValue(this.props.name);
+            value = this.context.Validator.getValue(this.props.name);
 
         if (this.props.type === 'checkbox') {
             key = 'defaultChecked';
@@ -103,6 +63,37 @@ export default class ValidatedInput extends React.Component {
         }
 
         return {bsStyle, help};
+    }
+
+    _getValidatorProps() {
+        let eventName = (this.props.validationEvent) ? this.props.validationEvent : this.context.Validator.validationEvent,
+            {key, value} = this._getDefaultValue(),
+            {bsStyle, help} = this._getValidation(),
+            callback = (event) => {
+                this.context.Validator.updateInput(this.props.name, this.getValue());
+                this.context.Validator.validateInput(this.props.name);
+
+                return this.props[eventName] && this.props[eventName](event);
+            },
+            newProps = {
+                validationEvent: eventName,
+            };
+
+        newProps[eventName] = callback;
+
+        if (value) {
+            newProps[key] = value;
+        }
+
+        if (bsStyle) {
+            newProps.bsStyle = bsStyle;
+        }
+
+        if (help) {
+            newProps.help = help;
+        }
+
+        return newProps;
     }
 }
 

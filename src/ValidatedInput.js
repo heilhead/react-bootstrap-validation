@@ -10,51 +10,103 @@ export default class ValidatedInput extends React.Component {
         this.context.Validator.unregisterInput(this);
     }
 
+    getValue() {
+        let value;
+
+        if (this.props.type === 'checkbox') {
+        value = this.refs.input.getChecked();
+        } else if (this.props.type === 'file') {
+            value = this.refs.input.getInputDOMNode().files;
+        } else {
+            value = this.refs.input.getValue();
+        }
+
+        return value;
+    }
+
     render() {
-        const Validator = this.context.Validator;
-        let {children as child, ...props} = this.props;
+        let {validate, errorHelp, validationEvent, ...props} = this.props;
 
-        props = Object.assign({}, child.props, props);
+        return (
+            <Input {...props}
+                {...this._generateValidatorProps()}
+                ref='input'>
+                {this.props.children}
+            </Input>
+        )
+    }
 
-        if (typeof props.validationEvent === 'undefined') {
-            props.validationEvent = Validator.validationEvent;
+    _generateValidatorProps() {
+        let eventName = this._getValidationEvent(),
+            {key, value} = this._getDefaultValue(),
+            {bsStyle, help} = this._getValidation(),
+            callback = this._getValidationCallback(eventName),
+            newProps = {
+                validationEvent: eventName,
+            };
+
+        newProps[eventName] = callback;
+
+        if (value) {
+            newProps[key] = value;
         }
 
-        let name = props.name,
-            error = Validator.hasError(name),
-            origCallback = props[evtName];
+        if (bsStyle) {
+            newProps.bsStyle = bsStyle;
+        }
 
-        props[evtName] = (e) => {
-            Validator.validateInput(name);
+        if (help) {
+            newProps.help = help;
+        }
 
-            return origCallback && origCallback(e);
+        return newProps;
+    }
+
+    _getValidationEvent() {
+        return (this.props.validationEvent) ? this.props.validationEvent : this.context.Validator.validationEvent;
+    }
+
+    _getValidationCallback(eventName) {
+        let origCallback = this.props[eventName];
+
+        return (event) => {
+            this.context.Validator.validateInput(this.props.name, this.getValue());
+
+            return origCallback && origCallback(event);
         };
+    }
 
-        if (name in Validator.model) {
-            if (props.type === 'checkbox') {
-                props.defaultChecked = Validator.model[name];
-            } else {
-                props.defaultValue = Validator.model[name];
-            }
+    _getDefaultValue() {
+        let key = 'defaultValue',
+            value = this.context.Validator.getDefaultValue(this.props.name);
+
+        if (this.props.type === 'checkbox') {
+            key = 'defaultChecked';
         }
 
-        if (Validator.hasError(name)) {
-            props.bsStyle = 'error';
+        return {key, value};
+    }
+
+    _getValidation() {
+        let error = this.context.Validator.hasError(this.props.name),
+            bsStyle = false,
+            help = false;
+
+        if (error) {
+            bsStyle = 'error';
 
             if (typeof error === 'string') {
-                props.help = error;
-            } else if (props.errorHelp) {
-                props.help = props.errorHelp;
+                help = error;
+            } else if (this.props.errorHelp) {
+                help = this.props.errorHelp;
             }
         }
 
-        return React.cloneElement(child, props);
+        return {bsStyle, help};
     }
 }
 
 ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
-    children       : React.PropTypes.node.isRequired,
-    name           : React.PropTypes.string.isRequired,
     validationEvent: React.PropTypes.oneOf([
         '', 'onChange', 'onBlur', 'onFocus'
     ]),
@@ -72,6 +124,4 @@ ValidatedInput.contextTypes = {
     Validator: React.PropTypes.object.isRequired
 };
 
-ValidatedInput.defaultProps = Object.assign({}, Input.defaultProps, {
-    validationEvent: ''
-});
+ValidatedInput.defaultProps = Input.defaultProps;

@@ -30,7 +30,7 @@ export default class Form extends InputContainer {
         return {
             Validator: {
                 hasError: this._hasError.bind(this),
-                model: this.props.model,
+                getDefaultValue: this._getCurrentValue.bind(this),
                 registerInput: this.registerInput.bind(this),
                 validateInput: this._validateInput.bind(this),
                 validationEvent: this.props.validationEvent,
@@ -43,6 +43,7 @@ export default class Form extends InputContainer {
         super.componentWillMount();
 
         this._validators = {};
+        this._values = {};
     }
 
     registerInput(input) {
@@ -50,6 +51,7 @@ export default class Form extends InputContainer {
 
         if (typeof input.props.validate === 'string') {
             this._validators[input.props.name] = this._compileValidationRules(input, input.props.validate);
+            this._values[input.props.name] = this._getCurrentValue(input.props.name);
         }
     }
 
@@ -61,13 +63,25 @@ export default class Form extends InputContainer {
 
     render() {
         return (
-            <form ref="form"
-                  onSubmit={this._handleSubmit.bind(this)}
-                  action="#"
-                  className={this.props.className}>
+            <form action="#"
+                  className={this.props.className}
+                  onSubmit={this._handleSubmit.bind(this)}>
                 {this.props.children}
             </form>
         );
+    }
+
+    _getCurrentValue(name) {
+        let value;
+        if (name in this.props.model) {
+            value = this.props.model[name];
+        }
+
+        if (this._values[name]) {
+            value = this._values[name];
+        }
+
+        return value;
     }
 
     getValues() {
@@ -82,8 +96,9 @@ export default class Form extends InputContainer {
         this._handleSubmit();
     }
 
-    _validateInput(name) {
-        this._validateOne(name, this.getValues());
+    _validateInput(name, value) {
+        this._values[name] = value;
+        this._validateOne(name, this._values);
     }
 
     _hasError(iptName) {
@@ -219,7 +234,7 @@ export default class Form extends InputContainer {
     }
 
     _getValue(iptName) {
-        let input = this._inputs[iptName].props.children;
+        let input = this._inputs[iptName];
 
         if (Array.isArray(input)) {
             console.warn('Multiple inputs use the same name "' + iptName + '"');
@@ -227,17 +242,7 @@ export default class Form extends InputContainer {
             return false;
         }
 
-        let value;
-
-        if (input.props.type === 'checkbox') {
-            value = input.getChecked();
-        } else if (input.props.type === 'file') {
-            value = input.getInputDOMNode().files;
-        } else {
-            value = input.getValue();
-        }
-
-        return value;
+        return this._values[iptName];
     }
 
     _handleSubmit(e) {
@@ -245,14 +250,14 @@ export default class Form extends InputContainer {
             e.preventDefault();
         }
 
-        let values = this.getValues();
+        // let values = this.getValues();
 
-        let { isValid, errors } = this._validateAll(values);
+        let { isValid, errors } = this._validateAll(this._values);
 
         if (isValid) {
-            this.props.onValidSubmit(values);
+            this.props.onValidSubmit(this._values);
         } else {
-            this.props.onInvalidSubmit(errors, values);
+            this.props.onInvalidSubmit(errors, this._values);
         }
     }
 }

@@ -189,9 +189,7 @@ export default class Form extends InputContainer {
         let validate = input.props.validate;
         let result, error;
 
-        if (typeof this.props.validateOne === 'function') {
-            result = this.props.validateOne(iptName, value, context);
-        } else if (typeof validate === 'function') {
+         if (typeof validate === 'function') {
             result = validate(value, context);
         } else if (typeof validate === 'string') {
             result = this._validators[iptName](value);
@@ -199,6 +197,9 @@ export default class Form extends InputContainer {
             result = true;
         }
 
+		if (typeof this.props.validateOne === 'function') {
+            result = this.props.validateOne(iptName, value, context, result);
+        } 
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {

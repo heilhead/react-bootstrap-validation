@@ -1,6 +1,6 @@
 {
   "name": "react-bootstrap-validation",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Form validation for react-bootstrap",
   "main": "./lib/index.js",
   "repository": {

@@ -149,7 +149,16 @@ export default class Form extends InputContainer {
     }
 
     _validateInput(name) {
-        this._validateOne(name, this.getValues());
+        result = this._validateOne(name, this.getValues());
+
+        if (result && typeof this.props.validateAllOnValidationEvent === 'function') {
+            let values = this.getValues();
+            let { allAreValid, errors } = this._validateAll(values);
+
+            if (allAreValid) {
+                this.props.validateAllCallback(allAreValid);
+            }
+        }
     }
 
     _hasError(iptName) {
@@ -189,8 +198,8 @@ export default class Form extends InputContainer {
         let validate = input.props.validate;
         let result, error;
 
-         if (typeof validate === 'function') {
-            result = validate(value, context);
+        if (typeof validate === 'function') {
+            result = validate(value, context);            
         } else if (typeof validate === 'string') {
             result = this._validators[iptName](value);
         } else {
@@ -331,9 +340,11 @@ Form.propTypes = {
     onInvalidSubmit: React.PropTypes.func,
     validateOne    : React.PropTypes.func,
     validateAll    : React.PropTypes.func,
+    validateAllCallback: React.PropTypes.func,
     validationEvent: React.PropTypes.oneOf([
         'onChange', 'onBlur', 'onFocus'
     ]),
+    validateAllOnValidationEvent: React.PropTypes.bool,
     errorHelp      : React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.object
@@ -343,5 +354,7 @@ Form.propTypes = {
 Form.defaultProps = {
     model          : {},
     validationEvent: 'onChange',
+    validateAllOnValidationEvent: false,
+    validateAllCallback: () => {},
     onInvalidSubmit: () => {}
 };

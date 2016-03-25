@@ -151,7 +151,7 @@ export default class Form extends InputContainer {
     _validateInput(name) {
         let result = this._validateOne(name, this.getValues());
 
-        if (result && typeof this.props.validateAllCallback === 'function') {
+        if (typeof this.props.validateAllCallback === 'function') {
             let values = this.getValues();
             let { isValid, errors } = this._validateAll(values, false);
 

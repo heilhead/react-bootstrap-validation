@@ -5,6 +5,7 @@ node_modules
 .idea/
 .babel-cache/
 .coverage/
+src/
 .npmignore
 gulpfile.js
 .eslintrc

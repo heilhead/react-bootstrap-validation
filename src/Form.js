@@ -149,15 +149,13 @@ export default class Form extends InputContainer {
     }
 
     _validateInput(name) {
-        result = this._validateOne(name, this.getValues());
+        let result = this._validateOne(name, this.getValues());
 
-        if (result && typeof this.props.validateAllOnValidationEvent === 'function') {
+        if (result && typeof this.props.validateAllCallback === 'function') {
             let values = this.getValues();
-            let { allAreValid, errors } = this._validateAll(values);
+            let { isValid, errors } = this._validateAll(values, false);
 
-            if (allAreValid) {
-                this.props.validateAllCallback(allAreValid);
-            }
+            this.props.validateAllCallback(isValid);
         }
     }
 
@@ -184,7 +182,7 @@ export default class Form extends InputContainer {
         });
     }
 
-    _validateOne(iptName, context) {
+    _validateOne(iptName, context, setError=true) {
         let input = this._inputs[iptName];
 
         if (Array.isArray(input)) {
@@ -219,12 +217,14 @@ export default class Form extends InputContainer {
             }
         }
 
-        this._setError(iptName, !isValid, error);
+        if (setError) {
+            this._setError(iptName, !isValid, error);
+        }
 
         return isValid;
     }
 
-    _validateAll(context) {
+    _validateAll(context, setError=true) {
         let isValid = true;
         let errors = [];
 
@@ -242,7 +242,7 @@ export default class Form extends InputContainer {
             }
         } else {
             Object.keys(this._inputs).forEach(iptName => {
-                if (!this._validateOne(iptName, context)) {
+                if (!this._validateOne(iptName, context, setError)) {
                     isValid = false;
                     errors.push(iptName);
                 }
@@ -344,7 +344,6 @@ Form.propTypes = {
     validationEvent: React.PropTypes.oneOf([
         'onChange', 'onBlur', 'onFocus'
     ]),
-    validateAllOnValidationEvent: React.PropTypes.bool,
     errorHelp      : React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.object
@@ -354,7 +353,5 @@ Form.propTypes = {
 Form.defaultProps = {
     model          : {},
     validationEvent: 'onChange',
-    validateAllOnValidationEvent: false,
-    validateAllCallback: () => {},
     onInvalidSubmit: () => {}
 };

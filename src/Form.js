@@ -224,7 +224,7 @@ export default class Form extends InputContainer {
         return isValid;
     }
 
-    _validateAll(context, setError=true) {
+    _validateAll(context, setError = true) {
         let isValid = true;
         let errors = [];
 

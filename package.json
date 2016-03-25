@@ -1,14 +1,14 @@
 {
   "name": "react-bootstrap-validation",
-  "version": "0.1.12",
+  "version": "0.1.11",
   "description": "Form validation for react-bootstrap",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MakerStudios/react-bootstrap-validation.git"
+    "url": "https://github.com/heilhead/react-bootstrap-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/MakerStudios/react-bootstrap-validation/issues"
+    "url": "https://github.com/heilhead/react-bootstrap-validation/issues"
   },
   "directories": {
     "lib": "lib/"
@@ -25,7 +25,7 @@
   ],
   "author": "Ivan Reshetnikov <keenn2007@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/MakerStudios/react-bootstrap-validation",
+  "homepage": "https://github.com/heilhead/react-bootstrap-validation",
   "peerDependencies": {
     "react": ">=0.13"
   },

@@ -182,7 +182,7 @@ export default class Form extends InputContainer {
         });
     }
 
-    _validateOne(iptName, context, setError=true) {
+    _validateOne(iptName, context, setError = true) {
         let input = this._inputs[iptName];
 
         if (Array.isArray(input)) {
@@ -196,8 +196,8 @@ export default class Form extends InputContainer {
         let validate = input.props.validate;
         let result, error;
 
-        if (typeof validate === 'function') {
-            result = validate(value, context);            
+         if (typeof validate === 'function') {
+            result = validate(value, context);
         } else if (typeof validate === 'string') {
             result = this._validators[iptName](value);
         } else {

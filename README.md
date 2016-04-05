@@ -475,7 +475,11 @@ Returns `true` if each file's mime type is in the `types` array.
 
 ## Tests
 
-Not yet implemented.
+Tests are written using the Jest unit testing framework by facebook. https://facebook.github.io/jest/
+
+To run the tests simply use the command "npm test". All tests should compile and pass before a pull request is accepted.
+
+For new features please add a new unit test spec to the __tests__ directory. Contributions for existing test specifications are welcome.
 
 ## License (MIT)
 

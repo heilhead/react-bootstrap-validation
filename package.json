@@ -46,7 +46,7 @@
     "babel-runtime": "^5.1.10",
     "classnames": "^2.0.0",
     "react-bootstrap": ">=0.23.0",
-    "validator": "^3.41.3",
+    "validator": "^5.2.0",
     "react-addons-create-fragment": "^0.14.7"
   }
 }

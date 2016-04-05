@@ -2,12 +2,12 @@
 import Form from '../src/Form';
 
 // Note: THere is an issue with react-bootstrap and mocking. For now the whole node_modules directory has been unmocked.
-describe('React bootstrap compilation test', () => {
+describe('React bootstrap validation compilation test', () => {
     var React = require('react');
     var TestUtils = require('react-addons-test-utils');
 
     beforeEach(function() {
-        //Row = require('react-bootstrap');
+        
     });
 
     it('Renders Form component correctly.', () => {

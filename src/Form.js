@@ -51,6 +51,7 @@ export default class Form extends InputContainer {
         return (
             <form ref="form"
                   onSubmit={this._handleSubmit.bind(this)}
+                  method={this.props.method}
                   action="#"
                   className={this.props.className}>
                 {this._renderChildren(this.props.children)}
@@ -327,6 +328,7 @@ export default class Form extends InputContainer {
 Form.propTypes = {
     className      : React.PropTypes.string,
     model          : React.PropTypes.object,
+    method         : React.PropTypes.oneOf(['get', 'post']),
     onValidSubmit  : React.PropTypes.func.isRequired,
     onInvalidSubmit: React.PropTypes.func,
     validateOne    : React.PropTypes.func,
@@ -343,5 +345,6 @@ Form.propTypes = {
 Form.defaultProps = {
     model          : {},
     validationEvent: 'onChange',
+    method         : 'get',
     onInvalidSubmit: () => {}
 };

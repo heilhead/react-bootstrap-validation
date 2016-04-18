@@ -151,6 +151,13 @@ export default class Form extends InputContainer {
 
     _validateInput(name) {
         this._validateOne(name, this.getValues());
+
+        if (typeof this.props.validateAllCallback === 'function') {
+            let values = this.getValues();
+            let { isValid } = this._validateAll(values, false);
+
+            this.props.validateAllCallback(isValid);
+        }
     }
 
     _hasError(iptName) {
@@ -176,7 +183,7 @@ export default class Form extends InputContainer {
         });
     }
 
-    _validateOne(iptName, context) {
+    _validateOne(iptName, context, setError = true) {
         let input = this._inputs[iptName];
 
         if (Array.isArray(input)) {
@@ -211,12 +218,14 @@ export default class Form extends InputContainer {
             }
         }
 
-        this._setError(iptName, !isValid, error);
+        if (setError) {
+            this._setError(iptName, !isValid, error);
+        }
 
         return isValid;
     }
 
-    _validateAll(context) {
+    _validateAll(context, setError = true) {
         let isValid = true;
         let errors = [];
 
@@ -234,7 +243,7 @@ export default class Form extends InputContainer {
             }
         } else {
             Object.keys(this._inputs).forEach(iptName => {
-                if (!this._validateOne(iptName, context)) {
+                if (!this._validateOne(iptName, context, setError)) {
                     isValid = false;
                     errors.push(iptName);
                 }
@@ -333,6 +342,7 @@ Form.propTypes = {
     onInvalidSubmit: React.PropTypes.func,
     validateOne    : React.PropTypes.func,
     validateAll    : React.PropTypes.func,
+    validateAllCallback: React.PropTypes.func,
     validationEvent: React.PropTypes.oneOf([
         'onChange', 'onBlur', 'onFocus'
     ]),

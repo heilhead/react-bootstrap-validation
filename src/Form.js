@@ -141,6 +141,8 @@ export default class Form extends InputContainer {
                 } else if (child.props.errorHelp) {
                     newProps.help = createFragment(child.props.errorHelp);
                 }
+            } else if(error === false && error !== undefined){
+                newProps.bsStyle = 'success';
             }
 
             return React.cloneElement(child, newProps);

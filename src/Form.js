@@ -1,8 +1,8 @@
 import React from 'react';
+
 import InputContainer from './InputContainer';
 import ValidatedInput from './ValidatedInput';
 import RadioGroup from './RadioGroup';
-
 import Validator from './Validator';
 import FileValidator from './FileValidator';
 import createFragment from 'react-addons-create-fragment'
@@ -27,6 +27,19 @@ export default class Form extends InputContainer {
         };
     }
 
+    getChildContext() {
+        return {
+            Validator: {
+                getDefaultValue: this._getDefaultValue.bind(this),
+                hasError: this._hasError.bind(this),
+                register: this.registerInput.bind(this),
+                unregister: this.unregisterInput.bind(this),
+                validate: this._validateInput.bind(this),
+                validationEvent: this.props.validationEvent
+            }
+        };
+    }
+
     componentWillMount() {
         super.componentWillMount();
 
@@ -48,13 +61,25 @@ export default class Form extends InputContainer {
     }
 
     render() {
+        const {
+            children,
+            errorHelp,
+            model,
+            onValidSubmit,
+            onInvalidSubmit,
+            validateOne,
+            validateAll,
+            validationEvent,
+            ...props
+        } = this.props;
+
         return (
             <form ref="form"
                   onSubmit={this._handleSubmit.bind(this)}
                   method={this.props.method}
                   action="#"
-                  className={this.props.className}>
-                {this._renderChildren(this.props.children)}
+                  {...props}>
+                {this.props.children}
             </form>
         );
     }
@@ -69,84 +94,6 @@ export default class Form extends InputContainer {
 
     submit() {
         this._handleSubmit();
-    }
-
-    _renderChildren(children) {
-        if (typeof children !== 'object' || children === null) {
-            return children;
-        }
-
-        let childrenCount = React.Children.count(children);
-
-        if (childrenCount > 1) {
-            return React.Children.map(children, child => this._renderChild(child));
-        } else if (childrenCount === 1) {
-            return this._renderChild(Array.isArray(children) ? children[0] : children);
-        }
-    }
-
-    _renderChild(child) {
-        if (typeof child !== 'object' || child === null) {
-            return child;
-        }
-
-        let model = this.props.model || {};
-
-        if (child.type === ValidatedInput ||
-            child.type === RadioGroup || (
-                child.type &&
-                child.type.prototype !== null && (
-                    child.type.prototype instanceof ValidatedInput ||
-                    child.type.prototype instanceof RadioGroup
-                )
-            )
-        ) {
-            let name = child.props && child.props.name;
-
-            if (!name) {
-                throw new Error('Can not add input without "name" attribute');
-            }
-
-            let newProps = {
-                _registerInput  : this.registerInput.bind(this),
-                _unregisterInput: this.unregisterInput.bind(this)
-            };
-
-            let evtName = child.props.validationEvent ?
-                    child.props.validationEvent : this.props.validationEvent;
-
-            let origCallback = child.props[evtName];
-
-            newProps[evtName] = e => {
-                this._validateInput(name);
-
-                return origCallback && origCallback(e);
-            };
-
-            if (name in model) {
-                if (child.props.type === 'checkbox') {
-                    newProps.defaultChecked = model[name];
-                } else {
-                    newProps.defaultValue = model[name];
-                }
-            }
-
-            let error = this._hasError(name);
-
-            if (error) {
-                newProps.bsStyle = 'error';
-
-                if (typeof error === 'string') {
-                    newProps.help = error;
-                } else if (child.props.errorHelp) {
-                    newProps.help = createFragment(child.props.errorHelp);
-                }
-            }
-
-            return React.cloneElement(child, newProps);
-        } else {
-            return React.cloneElement(child, {}, this._renderChildren(child.props && child.props.children));
-        }
     }
 
     _validateInput(name) {
@@ -200,7 +147,7 @@ export default class Form extends InputContainer {
 
 		if (typeof this.props.validateOne === 'function') {
             result = this.props.validateOne(iptName, value, context, result);
-        } 
+        }
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {
@@ -286,6 +233,12 @@ export default class Form extends InputContainer {
         };
     }
 
+    _getDefaultValue(iptName) {
+        if (iptName in this.props.model) {
+            return this.props.model[iptName];
+        }
+    }
+
     _getValue(iptName) {
         let input = this._inputs[iptName];
 
@@ -295,17 +248,7 @@ export default class Form extends InputContainer {
             return false;
         }
 
-        let value;
-
-        if (input.props.type === 'checkbox') {
-            value = input.getChecked();
-        } else if (input.props.type === 'file') {
-            value = input.getInputDOMNode().files;
-        } else {
-            value = input.getValue();
-        }
-
-        return value;
+        return input.getValue();
     }
 
     _handleSubmit(e) {
@@ -325,6 +268,11 @@ export default class Form extends InputContainer {
     }
 }
 
+Form.childContextTypes = {
+    Validator: React.PropTypes.object.isRequired
+};
+
+
 Form.propTypes = {
     className      : React.PropTypes.string,
     model          : React.PropTypes.object,
@@ -336,10 +284,7 @@ Form.propTypes = {
     validationEvent: React.PropTypes.oneOf([
         'onChange', 'onBlur', 'onFocus'
     ]),
-    errorHelp      : React.PropTypes.oneOfType([
-        React.PropTypes.string,
-        React.PropTypes.object
-    ])
+    errorHelp      : React.PropTypes.node
 };
 
 Form.defaultProps = {

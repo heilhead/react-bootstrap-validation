@@ -6,6 +6,7 @@
     },
     "ecmaFeatures": {
         "blockBindings": true,
+        "experimentalObjectRestSpread": true,
         "forOf": true,
         "jsx": true,
         "modules": true

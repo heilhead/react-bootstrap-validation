@@ -27,7 +27,8 @@
   "license": "MIT",
   "homepage": "https://github.com/heilhead/react-bootstrap-validation",
   "peerDependencies": {
-    "react": ">=0.13"
+    "react": ">=0.14",
+    "react-dom": ">=0.14"
   },
   "scripts": {
     "test": "jest"
@@ -46,7 +47,7 @@
     "babel-preset-jest": "^10.0.1",
     "babel-preset-react": "^6.5.0",
     "browserify": "10.x",
-    "gulp": "3.9.0",
+    "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
@@ -62,8 +63,10 @@
   "dependencies": {
     "babel-runtime": "^5.1.10",
     "classnames": "^2.0.0",
-    "react-bootstrap": ">=0.23.0",
-    "validator": "^3.41.3",
-    "react-addons-create-fragment": "^0.14.7"
+    "react-addons-create-fragment": "^0.14.7",
+    "react-bootstrap": ">=0.23.0  <0.29.0",
+    "react": ">=0.14.0",
+    "react-dom": ">=0.14.0",
+    "validator": "^3.41.3"
   }
 }

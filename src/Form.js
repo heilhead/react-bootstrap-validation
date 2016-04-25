@@ -248,36 +248,26 @@ export default class Form extends InputContainer {
     }
 
     _compileValidationRules(input, ruleProp) {
-
-        // Split and groups
-        let rules = ruleProp.split(',').map(rule => {
-            let params = rule.split(':');
-            let name = params.shift();
-            let inverse = name[0] === '!';
-
-            if (inverse) {
-                name = name.substr(1);
-            }
-
-            return { name, inverse, params,andCondition:true };
-        });
-
-
-        let orRules = ruleProp.split('|').map(rule => {
-            let params = rule.split(':');
-            let name = params.shift();
-            let inverse = name[0] === '!';
-
-            if (inverse) {
-                name = name.substr(1);
-            }
-
-            return { name, inverse, params,andCondition:false };
-        });
+        let deliminator =',';
+        let andCondition =true;
+        // set the deliminator
         if(ruleProp.indexOf('|')>0){
-          rules = orRules;
-        }
 
+          deliminator='|';
+          andCondition=false;
+        }
+        // Split and groups
+        let rules = ruleProp.split(deliminator).map(rule => {
+            let params = rule.split(':');
+            let name = params.shift();
+            let inverse = name[0] === '!';
+
+            if (inverse) {
+                name = name.substr(1);
+            }
+
+            return { name, inverse, params,andCondition:andCondition };
+        });
 
         let validator = (input.props && input.props.type) === 'file' ? FileValidator : Validator;
 

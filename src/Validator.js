@@ -6,7 +6,9 @@ import validator from 'validator';
  * @params {String} val
  * @returns {Boolean}
  */
-validator.extend('required', val => !validator.isNull(val));
+validator.required = (val) => !validator.isNull(val);
+
+validator.isEmpty = (val) => validator.isNull(val);
 
 /**
  * Returns true if the value is boolean true
@@ -14,11 +16,11 @@ validator.extend('required', val => !validator.isNull(val));
  * @params {String} val
  * @returns {Boolean}
  */
-validator.extend('isChecked', val => {
+validator.isChecked = (val) => {
     // compare it against string representation of a bool value, because
     // validator ensures all incoming values are coerced to strings
     // https://github.com/chriso/validator.js#strings-only
     return val === 'true';
-});
+};
 
 export default validator;

@@ -8,6 +8,7 @@ import validator from 'validator';
  */
 validator.extend('required', val => !validator.isNull(val));
 
+validator.extend('isEmpty', val => validator.isNull(val));
 /**
  * Returns true if the value is boolean true
  *

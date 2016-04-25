@@ -200,7 +200,7 @@ export default class Form extends InputContainer {
 
 		if (typeof this.props.validateOne === 'function') {
             result = this.props.validateOne(iptName, value, context, result);
-        } 
+        }
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {
@@ -248,9 +248,30 @@ export default class Form extends InputContainer {
     }
 
     _compileValidationRules(input, ruleProp) {
-        let rules = ruleProp.split(',').map(rule => {
-            let params = rule.split(':');
-            let name = params.shift();
+
+        let deliminator =',';
+        let andCondition =true;
+        // set the deliminator
+        if(ruleProp.indexOf('|')>0){
+
+          deliminator='|';
+          andCondition=false;
+        }
+        // Split and groups
+        let regex = /([!\w]+()\([^\)]*\)|[!\w]+)/g;
+        // Note: need to test against negation as well..
+        let tmp = ruleProp.match(regex);//.map(rule => {
+        let rules = ruleProp.match(regex).map(rule => {
+            let params = rule.match(/(\{[^}]*})/g);
+            if(!params){
+              params = [];
+            } else{
+              params = params.map(param =>{
+                return JSON.parse(param);
+              });
+              params = params[0];
+            }
+            let name =  rule.split('(').shift();
             let inverse = name[0] === '!';
 
             if (inverse) {
@@ -270,7 +291,7 @@ export default class Form extends InputContainer {
                     throw new Error('Invalid input validation rule "' + rule.name + '"');
                 }
 
-                let ruleResult = validator[rule.name](val, ...rule.params);
+                let ruleResult = validator[rule.name](val, rule.params);
 
                 if (rule.inverse) {
                     ruleResult = !ruleResult;

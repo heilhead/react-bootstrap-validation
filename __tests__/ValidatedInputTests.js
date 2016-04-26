@@ -21,7 +21,11 @@ describe('React bootstrap ValidatedInput test', () => {
               label='Number'
               name='number'
               className='testInput'
-              validate='isInt({ "min": 10, "max": 99 })'
+              validate={[{
+                          "name"  :"isInt",
+                          "params": { "min": 10, "max": 99 },
+                          "condition": "and"
+                        }]}
               errorHelp={{
                   isInt: 'Must be a whole number'
               }}

@@ -38,7 +38,10 @@ export default class Form extends InputContainer {
 
         if (typeof input.props.validate === 'string') {
             this._validators[input.props.name] = this._compileValidationRules(input, input.props.validate);
+        } else if(input.props.validate){
+            this._validators[input.props.name] = this._compileValidationRulesSpecial(input, input.props.validate);
         }
+
     }
 
     unregisterInput(input) {
@@ -194,6 +197,8 @@ export default class Form extends InputContainer {
             result = validate(value, context);
         } else if (typeof validate === 'string') {
             result = this._validators[iptName](value);
+        } else if(typeof validate === 'object'){
+          result = this._validators[iptName](value);
         } else {
             result = true;
         }
@@ -246,9 +251,55 @@ export default class Form extends InputContainer {
             errors: errors
         };
     }
+    _compileValidationRulesSpecial(input, ruleProp) {
 
+            // Note: need to test against negation as well..
+            let rules = ruleProp.map(rule => {
+              /*
+                  {
+                    "name"  :"isInt",
+                    "params": { "min": 10, "max": 99 },
+                    "condition": "and",
+                    "inverse": false
+                  }
+              */
+              let params = [];
+
+                if(rule.params){
+                  params = rule.params;
+                }
+
+                let inverse = rule.inverse;
+                return { "name":rule.name, "inverse":rule.inverse, params, "condition":rule.condition };
+            });
+            let validator = (input.props && input.props.type) === 'file' ? FileValidator : Validator;
+
+            return val => {
+                let result = true;
+                let previousResult = true;
+                rules.forEach(rule => {
+                    if (typeof validator[rule.name] !== 'function') {
+                        throw new Error('Invalid input validation rule "' + rule.name + '"');
+                    }
+                    let ruleResult = validator[rule.name](val, rule.params);
+
+                    if (rule.inverse) {
+                        ruleResult = !ruleResult;
+                    }
+                    if(rule.condition && rule.condition === "or"){
+                      ruleResult = ruleResult || previousResult;
+                    }
+                    previousResult = ruleResult;
+                    if (result === true && ruleResult !== true) {
+                        result = getInputErrorMessage(input, rule.name) ||
+                            getInputErrorMessage(this, rule.name) || false;
+                    }
+                });
+
+                return result;
+            };
+        }
     _compileValidationRules(input, ruleProp) {
-
         let deliminator =',';
         let andCondition =true;
         // set the deliminator
@@ -258,44 +309,37 @@ export default class Form extends InputContainer {
           andCondition=false;
         }
         // Split and groups
-        let regex = /([!\w]+()\([^\)]*\)|[!\w]+)/g;
-        // Note: need to test against negation as well..
-        let tmp = ruleProp.match(regex);//.map(rule => {
-        let rules = ruleProp.match(regex).map(rule => {
-            let params = rule.match(/(\{[^}]*})/g);
-            if(!params){
-              params = [];
-            } else{
-              params = params.map(param =>{
-                return JSON.parse(param);
-              });
-              params = params[0];
-            }
-            let name =  rule.split('(').shift();
+        let rules = ruleProp.split(deliminator).map(rule => {
+            let params = rule.split(':');
+            let name = params.shift();
             let inverse = name[0] === '!';
 
             if (inverse) {
                 name = name.substr(1);
             }
 
-            return { name, inverse, params };
+            return { name, inverse, params,andCondition:andCondition };
         });
 
         let validator = (input.props && input.props.type) === 'file' ? FileValidator : Validator;
 
         return val => {
             let result = true;
-
+            let previousResult = true;
             rules.forEach(rule => {
                 if (typeof validator[rule.name] !== 'function') {
                     throw new Error('Invalid input validation rule "' + rule.name + '"');
                 }
 
-                let ruleResult = validator[rule.name](val, rule.params);
+                let ruleResult = validator[rule.name](val, ...rule.params);
 
                 if (rule.inverse) {
                     ruleResult = !ruleResult;
                 }
+                if(!rule.andCondition){
+                  ruleResult = ruleResult || previousResult;
+                }
+                previousResult = ruleResult;
 
                 if (result === true && ruleResult !== true) {
                     result = getInputErrorMessage(input, rule.name) ||

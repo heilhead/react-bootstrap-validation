@@ -43,7 +43,23 @@ class MyRegistrationForm extends React.Component {
                         isEmail: 'Email is invalid'
                     }}
                 />
-
+                <Form onValidSubmit={validSubmit}>
+                  <ValidatedInput
+                  type='text'
+                  label='Phone Number'
+                  name='number'
+                  // Alternative syntax when passing parameters to validator functions.
+                  // Also able to specify "and" or "or" conditions for processing rule combinations.
+                  validate={[{
+                              "name"  :"isInt",
+                              "params": { "min": 10, "max": 99 },
+                              "condition": "and"
+                            }]}
+                  errorHelp={{
+                      isInt: 'Must be a whole number'
+                  }}
+                />
+                </Form>);
                 <ValidatedInput
                     type='password'
                     name='password'

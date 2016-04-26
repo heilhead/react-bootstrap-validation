@@ -34,6 +34,7 @@
   },
   "jest": {
     "scriptPreprocessor": "node_modules/babel-jest",
+    "collectCoverage": true,
     "unmockedModulePathPatterns": [
       "node_modules",
       "src"

@@ -200,7 +200,7 @@ export default class Form extends InputContainer {
 
 		if (typeof this.props.validateOne === 'function') {
             result = this.props.validateOne(iptName, value, context, result);
-        } 
+        }
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {
@@ -248,7 +248,16 @@ export default class Form extends InputContainer {
     }
 
     _compileValidationRules(input, ruleProp) {
-        let rules = ruleProp.split(',').map(rule => {
+        let deliminator =',';
+        let andCondition =true;
+        // set the deliminator
+        if(ruleProp.indexOf('|')>0){
+
+          deliminator='|';
+          andCondition=false;
+        }
+        // Split and groups
+        let rules = ruleProp.split(deliminator).map(rule => {
             let params = rule.split(':');
             let name = params.shift();
             let inverse = name[0] === '!';
@@ -257,14 +266,14 @@ export default class Form extends InputContainer {
                 name = name.substr(1);
             }
 
-            return { name, inverse, params };
+            return { name, inverse, params,andCondition:andCondition };
         });
 
         let validator = (input.props && input.props.type) === 'file' ? FileValidator : Validator;
 
         return val => {
             let result = true;
-
+            let previousResult = true;
             rules.forEach(rule => {
                 if (typeof validator[rule.name] !== 'function') {
                     throw new Error('Invalid input validation rule "' + rule.name + '"');
@@ -275,6 +284,10 @@ export default class Form extends InputContainer {
                 if (rule.inverse) {
                     ruleResult = !ruleResult;
                 }
+                if(!rule.andCondition){
+                  ruleResult = ruleResult || previousResult;
+                }
+                previousResult = ruleResult;
 
                 if (result === true && ruleResult !== true) {
                     result = getInputErrorMessage(input, rule.name) ||

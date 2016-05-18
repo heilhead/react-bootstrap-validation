@@ -200,7 +200,7 @@ export default class Form extends InputContainer {
 
 		if (typeof this.props.validateOne === 'function') {
             result = this.props.validateOne(iptName, value, context, result);
-        } 
+        }
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {
@@ -261,6 +261,9 @@ export default class Form extends InputContainer {
         });
 
         let validator = (input.props && input.props.type) === 'file' ? FileValidator : Validator;
+        if (input.props && input.props.validator) {
+                validator = input.props.validator;
+        }
 
         return val => {
             let result = true;
@@ -331,6 +334,7 @@ Form.propTypes = {
     method         : React.PropTypes.oneOf(['get', 'post']),
     onValidSubmit  : React.PropTypes.func.isRequired,
     onInvalidSubmit: React.PropTypes.func,
+    validator      : React.PropTypes.object,
     validateOne    : React.PropTypes.func,
     validateAll    : React.PropTypes.func,
     validationEvent: React.PropTypes.oneOf([

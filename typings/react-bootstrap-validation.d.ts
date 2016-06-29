@@ -17,7 +17,8 @@ declare module 'react-bootstrap-validation' {
         validateAll?: any;
         errorHelp?: string | any;
         validationEvent?: string; //Input event that triggers field validation. Can be one of onChange, onBlur or onFocus. Default value is onChange.
-        onValidSubmit: any;
+        onValidSubmit?: any;
+        onInvalidSubmit?: any;
         model?:any;
         id?: string | any;
     }
@@ -29,13 +30,14 @@ declare module 'react-bootstrap-validation' {
     interface ValidatedInputProps extends React.Props<ValidatedInputClass> {
         name: string;
         validationEvent?: string;
-        validate: any;
+        validate?: any;
         type: any;
         label: any;
         errorHelp?: any;
         maxLength?: string;
         id?: string | number;
         placeholder?: string;
+        className?: string;
     }
 
     // Radio ComponentA

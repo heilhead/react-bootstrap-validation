@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import InputContainer from './InputContainer';
 import ValidatedInput from './ValidatedInput';
 import RadioGroup from './RadioGroup';
@@ -200,7 +201,7 @@ export default class Form extends InputContainer {
 
 		if (typeof this.props.validateOne === 'function') {
             result = this.props.validateOne(iptName, value, context, result);
-        } 
+        }
         // if result is !== true, it is considered an error
         // it can be either bool or string error
         if (result !== true) {
@@ -296,13 +297,13 @@ export default class Form extends InputContainer {
         }
 
         let value;
-
+        let dom = ReactDOM.findDOMNode(input.refs.control);
         if (input.props.type === 'checkbox') {
-            value = input.getChecked();
+            value = dom.checked;
         } else if (input.props.type === 'file') {
-            value = input.getInputDOMNode().files;
+            value = dom.files;
         } else {
-            value = input.getValue();
+            value = dom.value;
         }
 
         return value;

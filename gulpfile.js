@@ -45,7 +45,6 @@ var config = {
         devtool: 'source-map'
     },
     babel: {
-        optional: ['runtime']
     }
 };
 

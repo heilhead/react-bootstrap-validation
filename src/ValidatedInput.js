@@ -1,33 +1,33 @@
 import React from 'react';
-import { Input } from 'react-bootstrap';
+import { FormControl } from 'react-bootstrap';
 
-export default class ValidatedInput extends Input {
+export default class ValidatedInput extends React.Component {
     constructor(props) {
         super(props);
 
-        if (!props._registerInput || !props._unregisterInput) {
+        const {validationEvent, validate, errorHelp, _registerInput, _unregisterInput, ...inputProps} = props;
+        this._registerInput = _registerInput;
+        this._unregisterInput = _unregisterInput;
+        this.inputProps = inputProps;
+        if (!this._registerInput || !this._unregisterInput) {
             throw new Error('Input must be placed inside the Form component');
         }
     }
 
     componentWillMount() {
-        if (Input.prototype.componentWillMount) {
-            super.componentWillMount();
-        }
-
-        this.props._registerInput(this);
+        this._registerInput(this);
     }
 
     componentWillUnmount() {
-        if (Input.prototype.componentWillUnmount) {
-            super.componentWillUnmount();
-        }
+        this._unregisterInput(this);
+    }
 
-        this.props._unregisterInput(this);
+    render() {
+        return <FormControl ref='control' {...this.inputProps}>{this.props.children}</FormControl>;
     }
 }
 
-ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
+ValidatedInput.propTypes = {
     name           : React.PropTypes.string.isRequired,
     validationEvent: React.PropTypes.oneOf([
         '', 'onChange', 'onBlur', 'onFocus'
@@ -40,8 +40,8 @@ ValidatedInput.propTypes = Object.assign({}, Input.propTypes, {
         React.PropTypes.string,
         React.PropTypes.object
     ])
-});
+};
 
-ValidatedInput.defaultProps = Object.assign({}, Input.defaultProps, {
+ValidatedInput.defaultProps = {
     validationEvent: ''
-});
+};
